@@ -20,24 +20,31 @@ def attach_energy(payload: Dict[str, Any], mode: str) -> Dict[str, Any]:
     """
     Add measured energy consumption to the payload.
     mode:
-      - normal: typical range
-      - anomaly: abnormally high for same context
-      - drift: shifts distributions (speed/mode/traffic) + higher energy
+      - normal  : normal driving + normal energy
+      - anomaly : same context but energy abnormally high
+      - drift   : shift distributions of MONITORED features (so drift/check becomes true)
     """
     p = dict(payload)
 
     if mode == "normal":
-        p["Energy_Consumption_kWh"] = round(random.uniform(7.0, 11.5), 2)
+        # tighten a bit to reduce random anomalies
+        p["Energy_Consumption_kWh"] = round(random.uniform(8.0, 10.8), 2)
 
     elif mode == "anomaly":
         # keep context similar but energy much higher
         p["Energy_Consumption_kWh"] = round(random.uniform(22, 35), 2)
 
     elif mode == "drift":
-        # shift context distributions to simulate drift
-        p["Speed_kmh"] = round(random.uniform(110, 145), 2)
+        # REAL drift: shift multiple sensor distributions, not only speed
+        p["Speed_kmh"] = round(random.uniform(160, 185), 2)
+        p["Acceleration_ms2"] = round(random.uniform(1.4, 2.2), 2)
+        p["Slope_%"] = round(random.uniform(10, 18), 2)
+        p["Temperature_C"] = round(random.uniform(38, 48), 2)
+        p["Battery_State_%"] = round(random.uniform(15, 30), 2)
         p["Driving_Mode"] = "sport"
-        p["Traffic_Condition"] = "low"
+        p["Traffic_Condition"] = "high"
+
+        # energy can be higher, but drift is detected via sensors
         p["Energy_Consumption_kWh"] = round(random.uniform(18, 30), 2)
 
     else:

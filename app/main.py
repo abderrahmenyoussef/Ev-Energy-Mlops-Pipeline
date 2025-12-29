@@ -1,6 +1,8 @@
 from typing import Dict, Any, List
 from fastapi import FastAPI
 from fastapi.responses import JSONResponse
+from fastapi import Query
+
 
 from app.models import (
     HealthResponse,
@@ -25,8 +27,8 @@ recent_buffer: Dict[str, List[float]] = {
     "Slope_%": [],
     "Temperature_C": [],
     "Battery_State_%": [],
-    "Energy_Consumption_kWh": [],
 }
+
 
 MONITORED_DRIFT_FEATURES = [
     "Speed_kmh",
@@ -34,8 +36,8 @@ MONITORED_DRIFT_FEATURES = [
     "Slope_%",
     "Temperature_C",
     "Battery_State_%",
-    "Energy_Consumption_kWh",
 ]
+
 
 
 @app.on_event("startup")
@@ -75,7 +77,6 @@ def predict(item: EVSensorReading):
     _push("Slope_%", payload.get("Slope_%"))
     _push("Temperature_C", payload.get("Temperature_C"))
     _push("Battery_State_%", payload.get("Battery_State_%"))
-    _push("Energy_Consumption_kWh", payload.get("Energy_Consumption_kWh"))
 
     # Predict
     vehicle_id = item.vehicle_id or "vehicle_001"
@@ -133,6 +134,16 @@ def drift_check():
         feature_scores=feature_scores,
         message=msg,
     )
+
+@app.post("/stream/reset")
+def stream_reset(vehicle_id: str = "vehicle_001"):
+    for k in recent_buffer.keys():
+        recent_buffer[k].clear()
+
+    store.reset_state(vehicle_id=vehicle_id)
+
+    return {"status": "ok", "message": f"State reset for {vehicle_id} (drift buffer + anomaly history)."}
+
 
 
 @app.post("/drift/alert")

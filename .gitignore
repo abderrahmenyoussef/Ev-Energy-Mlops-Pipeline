@@ -9,3 +9,4 @@ mlruns/
 confusion_matrix.png
 feature_importance.png
 ./pytest_cache/
+*.sh
