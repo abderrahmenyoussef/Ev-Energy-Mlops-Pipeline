@@ -9,3 +9,5 @@ mlflow
 matplotlib
 requests
 httpx
+opencensus-ext-azure
+opencensus-ext-requests

@@ -2,6 +2,10 @@ from typing import Dict, Any, List
 from fastapi import FastAPI
 from fastapi.responses import JSONResponse
 from fastapi import Query
+import logging
+import os
+from opencensus.ext.azure.log_exporter import AzureLogHandler
+
 
 
 from app.models import (
@@ -14,6 +18,17 @@ from app.models import (
 )
 from app.utils import ArtifactStore
 from app.drift_detect import compute_drift_scores
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger("ev-energy-api")
+
+APPINSIGHTS_CONN = os.getenv("APPLICATIONINSIGHTS_CONNECTION_STRING")
+if APPINSIGHTS_CONN:
+    logger.addHandler(AzureLogHandler(connection_string=APPINSIGHTS_CONN))
+    logger.info("Application Insights connected")
+else:
+    logger.warning("Application Insights NOT configured (missing env var)")
+
 
 app = FastAPI(title="EV Energy MLOps Pipeline API", version="0.1.0")
 
@@ -90,6 +105,21 @@ def predict(item: EVSensorReading):
         predicted_kwh=predicted,
         actual_kwh=actual,
     )
+    logger.info(
+    "prediction",
+    extra={
+        "custom_dimensions": {
+            "event_type": "prediction",
+            "vehicle_id": vehicle_id,
+            "predicted_kwh": float(predicted),
+            "actual_kwh": None if actual is None else float(actual),
+            "residual_kwh": None if residual is None else float(residual),
+            "error_pct": None if err_pct is None else float(err_pct),
+            "is_anomaly": bool(is_anom),
+            "alert": bool(alert),
+        }
+    },
+)
 
     return PredictionResponse(
         vehicle_id=vehicle_id,
@@ -127,7 +157,19 @@ def drift_check():
     if drift_detected
     else f"No drift (max_z={max_z:.2f}, avg_z={drift_score:.2f})."
     )
-
+    max_z = max(feature_scores.values()) if feature_scores else 0.0
+    logger.info(
+    "drift_check",
+    extra={
+        "custom_dimensions": {
+            "event_type": "drift_check",
+            "drift_detected": bool(drift_detected),
+            "drift_score": float(drift_score),
+            "max_z": float(max_z),
+            "buffer_size": RECENT_BUFFER_SIZE,
+        }
+    },
+)
     return DriftCheckResponse(
         drift_detected=drift_detected,
         drift_score=float(drift_score),
@@ -141,6 +183,16 @@ def stream_reset(vehicle_id: str = "vehicle_001"):
         recent_buffer[k].clear()
 
     store.reset_state(vehicle_id=vehicle_id)
+    logger.info(
+    "stream_reset",
+    extra={
+        "custom_dimensions": {
+            "event_type": "stream_reset",
+            "vehicle_id": vehicle_id,
+        }
+    },
+)
+
 
     return {"status": "ok", "message": f"State reset for {vehicle_id} (drift buffer + anomaly history)."}
 
