@@ -1,10 +1,10 @@
 # EV Energy MLOps Pipeline
 
-[![Made with Python](https://img.shields.io/badge/Made%20with-Python-3776AB?logo=python&logoColor=white)](https://www.python.org/) [![FastAPI](https://img.shields.io/badge/FastAPI-009688?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/) [![scikit-learn](https://img.shields.io/badge/scikit--learn-F7931E?logo=scikit-learn&logoColor=white)](https://scikit-learn.org/) [![MLflow](https://img.shields.io/badge/MLflow-0194E2?logo=mlflow&logoColor=white)](https://mlflow.org/) [![Docker](https://img.shields.io/badge/Docker-2496ED?logo=docker&logoColor=white)](https://www.docker.com/) [![Azure](https://img.shields.io/badge/Azure-0078D4?logo=microsoft-azure&logoColor=white)](https://azure.microsoft.com/)
+[![Made with Python](https://img.shields.io/badge/Made%20with-Python-3776AB?logo=python&logoColor=white)](https://www.python.org/) [![FastAPI](https://img.shields.io/badge/FastAPI-009688?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/) [![scikit-learn](https://img.shields.io/badge/scikit--learn-F7931E?logo=scikit-learn&logoColor=white)](https://scikit-learn.org/) [![MLflow](https://img.shields.io/badge/MLflow-0194E2?logo=mlflow&logoColor=white)](https://mlflow.org/) [![Docker](https://img.shields.io/badge/Docker-2496ED?logo=docker&logoColor=white)](https://www.docker.com/) [![Azure](https://img.shields.io/badge/Azure-0078D4?logo=microsoft-azure&logoColor=white)](https://azure.microsoft.com/) [![Streamlit](https://img.shields.io/badge/Streamlit-FF4B4B?logo=streamlit&logoColor=white)](https://streamlit.io/)
 
 **Production-Grade Machine Learning System for Electric Vehicle Energy Anomaly Detection**
 
-🌐 **Version live** : [EV Energy MLOps API](https://app-ev-energy-api.politetree-fd6ee87e.norwayeast.azurecontainerapps.io/)
+🚀 **Live API**: [EV Energy MLOps API](https://app-ev-energy-api.politetree-fd6ee87e.norwayeast.azurecontainerapps.io/)
 
 ---
 
@@ -22,6 +22,8 @@
 - [Monitoring and Maintenance](#monitoring-and-maintenance)
 - [Simulator Commands](#simulator-commands)
 - [KQL Queries](#kql-queries)
+- [Streamlit Application - Frontend Interface](#streamlit-application---frontend-interface)
+- [Conclusion](#conclusion)
 
 ---
 
@@ -949,6 +951,231 @@ traces
   by bin(timestamp, 5m)
 | order by timestamp desc
 ```
+
+---
+
+## Streamlit Application - Frontend Interface
+
+A complete Streamlit application for real-time monitoring and analysis of electric vehicle energy consumption.
+
+### Features
+
+#### Authentication
+- User registration (Sign up) with MySQL database (db4free.net)
+- Secure login with SHA-256 password hashing
+- Session management
+
+#### Manual Prediction
+- Interactive form for vehicle parameters
+- Instant energy consumption prediction
+- Real-time anomaly detection
+- Graphical visualizations with threshold comparison
+
+#### Real-Time Streaming
+- EV connection simulation
+- 3 streaming modes:
+  - **Normal**: Standard driving conditions
+  - **Anomaly**: Inject anomalies for testing
+  - **Drift**: Simulate data drift
+- Real-time data visualization with live charts
+- Visual alerts for anomaly detection
+- Session statistics and final analysis
+
+#### Analytics Dashboard
+- Real-time KPIs
+- Drift detection with per-feature analysis
+- Historical data analysis
+- CSV data export
+- API health monitoring
+
+### Prerequisites
+
+#### Database Setup (db4free.net)
+
+1. Create an account on [db4free.net](https://www.db4free.net/)
+2. Create a new MySQL database
+3. Note your credentials:
+   - Host: `db4free.net`
+   - Port: `3306`
+   - Username: your username
+   - Password: your password
+   - Database: your database name
+
+#### Configuration with .env
+
+1. **Navigate to streamlit app directory**:
+   ```bash
+   cd streamlit_app
+   ```
+
+2. **Copy the example file**:
+   ```bash
+   cp .env.example .env
+   ```
+
+3. **Edit the .env file** with your actual values:
+   ```bash
+   nano .env  # or vim, or your preferred editor
+   ```
+
+4. **Fill in the variables** (ALL REQUIRED):
+   ```env
+   # Database Configuration (db4free.net) - REQUIRED
+   DB_HOST=db4free.net
+   DB_PORT=3306
+   DB_USER=your_username
+   DB_PASSWORD=your_password
+   DB_NAME=your_database
+   
+   # API Configuration - REQUIRED
+   API_BASE_URL=https://app-ev-energy-api.politetree-fd6ee87e.norwayeast.azurecontainerapps.io
+   ```
+
+
+### Installation
+
+#### 1. Create a virtual environment
+
+```bash
+cd streamlit_app
+python -m venv venv
+```
+
+#### 2. Activate the environment
+
+**Linux/Mac:**
+```bash
+source venv/bin/activate
+```
+
+**Windows:**
+```bash
+venv\Scripts\activate
+```
+
+#### 3. Install dependencies
+
+```bash
+pip install -r requirements.txt
+```
+
+### Running the Application
+
+#### Start the application
+
+```bash
+streamlit run app.py
+```
+
+The application will be accessible at: `http://localhost:8501`
+
+### Usage Guide
+
+#### 1. First Connection
+
+1. **Sign Up**:
+   - Go to the "Sign Up" tab
+   - Fill in the form (username, email, full name, password)
+   - Click "Sign Up"
+
+2. **Login**:
+   - Use your credentials to log in
+   - Access the main dashboard
+
+#### 2. Manual Prediction
+
+1. Go to "Manual Prediction"
+2. Enter vehicle parameters:
+   - Speed (km/h)
+   - Acceleration (m/s²)
+   - Slope (%)
+   - Temperature (°C)
+   - Battery State (%)
+   - Driving Mode (eco/normal/sport)
+   - Traffic Condition (low/medium/high)
+   - (Optional) Actual energy consumption
+3. Use Quick Presets for common scenarios:
+   - City Driving
+   - Highway
+   - Mountain
+   - Bad Weather
+4. Click "Predict"
+5. View results and anomaly detection
+
+#### 3. Real-Time Streaming
+
+1. Go to "Real-Time Streaming"
+2. Configure streaming:
+   - Enter Vehicle ID
+   - Select a mode (Normal / Anomaly / Drift)
+   - Set duration (10-120 seconds)
+   - Set update rate (1-5 seconds)
+3. Click "Start Streaming"
+4. Observe real-time visualizations:
+   - Energy consumption time series
+   - Latest prediction comparison
+   - Anomaly detection markers
+   - Error percentage trends
+5. Watch for alerts:
+   - Red = Anomaly detected
+   - Animation = Multiple anomalies
+
+**IMPORTANT**: Always **Reset Stream** before launching a new scenario!
+
+#### 4. Analytics Dashboard
+
+1. Go to "Dashboard"
+2. View global KPIs
+3. Check for drift with "Check for Data Drift"
+4. Analyze charts:
+   - Consumption trends
+   - Error distribution
+   - Anomaly timeline
+5. Export data to CSV if needed
+
+### User Interface
+
+#### Design
+- Modern interface with purple/blue gradient
+- Smooth animations and visual effects
+- Responsive design
+- Colored cards and metrics
+
+#### Alerts
+- **Anomalies**: Red pulse animation
+- **Multiple alerts**: Visual indicators
+- **Drift**: Orange badge with severity level
+
+### Application Structure
+
+```
+streamlit_app/
+├── app.py                          # Main page (Login/Home)
+├── pages/
+│   ├── 2_Manual_Prediction.py      # Manual predictions
+│   ├── 3_Real_Time_Streaming.py    # Real-time streaming
+│   └── 4_Dashboard.py              # Analytics dashboard
+├── utils/
+│   ├── __init__.py
+│   ├── auth.py                     # Authentication utilities
+│   ├── database.py                 # Database management
+│   └── api_client.py               # API client
+├── .streamlit/
+│   └── config.toml                 # Streamlit configuration
+├── config.py                       # Application configuration
+├── requirements.txt                # Python dependencies
+├── .env.example                    # Environment variables template
+├── .env                            # Your actual config (DO NOT COMMIT)
+└── .gitignore                      # Git ignore rules
+```
+
+### Security
+
+- Passwords hashed with SHA-256
+- Secure sessions
+- No hardcoded credentials in code
+- All sensitive data from .env file only
+- Environment variables required in production
 
 ---
 
