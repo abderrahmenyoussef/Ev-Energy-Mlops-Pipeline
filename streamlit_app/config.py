@@ -27,7 +27,7 @@ for key, value in DB_CONFIG.items():
         raise ValueError(f"DB_{key.upper()} must be set in .env file")
 
 # App Configuration - Optional with defaults
-APP_TITLE = os.getenv("APP_TITLE", "⚡ EV Energy Monitor")
+APP_TITLE = os.getenv("APP_TITLE", "EV Energy Monitor")
 APP_ICON = os.getenv("APP_ICON", "⚡")
 
 # Streaming Configuration
