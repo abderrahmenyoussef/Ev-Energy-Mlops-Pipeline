@@ -118,8 +118,14 @@ def drift_check():
         monitored_features=MONITORED_DRIFT_FEATURES,
     )
 
-    drift_detected = drift_score >= 2.0  # threshold you can tune
-    msg = f"Drift detected (score={drift_score:.2f})." if drift_detected else f"No drift (score={drift_score:.2f})."
+    MAX_Z_THRESHOLD = 2.0  # seuil drift par feature
+    max_z = max(feature_scores.values()) if feature_scores else 0.0
+    drift_detected = max_z >= MAX_Z_THRESHOLD
+    msg = (
+    f"Drift detected (max_z={max_z:.2f}, avg_z={drift_score:.2f})."
+    if drift_detected
+    else f"No drift (max_z={max_z:.2f}, avg_z={drift_score:.2f})."
+    )
 
     return DriftCheckResponse(
         drift_detected=drift_detected,
