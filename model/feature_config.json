@@ -1,0 +1,15 @@
+{
+  "num_features": [
+    "Speed_kmh",
+    "Acceleration_ms2",
+    "Slope_%",
+    "Temperature_C",
+    "Battery_State_%"
+  ],
+  "cat_features": [
+    "Driving_Mode",
+    "Traffic_Condition"
+  ],
+  "target": "Energy_Consumption_kWh",
+  "model_path": "model/ev_energy_model.pkl"
+}
