@@ -1,0 +1,9 @@
+{
+  "method": "regression_residual",
+  "residual_threshold_kwh_p95": 1.8885987169454297,
+  "error_pct_threshold_p95": 24.03632014200806,
+  "rule": "anomaly if residual > residual_threshold OR error_pct > error_pct_threshold",
+  "alert_window_size": 20,
+  "alert_min_anomalies_in_window": 10,
+  "alert_consecutive_anomalies": 5
+}
