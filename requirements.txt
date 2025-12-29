@@ -8,3 +8,4 @@ joblib
 mlflow
 matplotlib
 requests
+httpx
