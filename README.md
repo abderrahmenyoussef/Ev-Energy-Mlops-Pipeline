@@ -6,6 +6,8 @@
 
 🚀 **Live API**: [EV Energy MLOps API](https://app-ev-energy-api.politetree-fd6ee87e.norwayeast.azurecontainerapps.io/)
 
+🎨 **Live Frontend**: [EV Energy Streamlit App](https://ev-energy-mlops-pipeline-cgtgts4abe4mcv57banrag.streamlit.app/)
+
 ---
 
 ## Table of Contents
@@ -545,29 +547,78 @@ Continuous Integration and Continuous Deployment are automated using GitHub Acti
 - **Pull requests:** Run tests only
 - **Manual trigger:** `workflow_dispatch`
 
-### Jobs
+### Jobs Overview
 
-#### Job 1: Test
+| Job | Purpose | Runs On |
+|-----|---------|---------|
+| test-backend | Validate FastAPI code and run unit tests | All triggers |
+| test-frontend | Validate Streamlit app syntax, imports, and structure | All triggers |
+| security-scan | Check dependencies for known vulnerabilities | All triggers |
+| build-and-deploy | Build Docker image and deploy to Azure | Push to main only |
 
-**Purpose:** Validate code quality and functionality before deployment.
+### Job 1: Backend Tests
+
+**Purpose:** Validate backend code quality and API functionality.
 
 **Steps:**
 1. Checkout repository
 2. Set up Python 3.11
-3. Install dependencies from requirements.txt
+3. Install backend dependencies from `requirements.txt`
 4. Install pytest and pytest-cov
-5. Run tests with coverage:
+5. Run backend tests with coverage:
    ```bash
-   pytest tests/ -v --cov=app --cov-report=term
+   pytest tests/test_smoke.py -v --cov=app --cov-report=term
    ```
 
-**Conditions:** Runs on all triggers (push, PR, manual).
+### Job 2: Frontend Tests
 
-#### Job 2: Build and Deploy
+**Purpose:** Validate Streamlit application before deployment.
+
+**Steps:**
+1. Checkout repository
+2. Set up Python 3.11
+3. Install frontend dependencies from `streamlit_app/requirements.txt`
+4. Install pytest and ruff (linter)
+5. Run linting with Ruff:
+   ```bash
+   ruff check streamlit_app/ --ignore=E501,F401 --exit-zero
+   ```
+6. Run frontend test suite:
+   ```bash
+   pytest tests/test_streamlit_app.py -v
+   ```
+7. Verify Streamlit app can start (smoke test)
+
+**Frontend Test Coverage:**
+
+| Test Class | Tests | Description |
+|------------|-------|-------------|
+| TestStreamlitSyntax | 2 | Validates Python syntax across all files, checks for debug print statements |
+| TestStreamlitImports | 2 | Verifies config module and utils imports work correctly |
+| TestStreamlitPages | 2 | Ensures all pages exist and have valid syntax |
+| TestStreamlitRequirements | 3 | Validates requirements.txt format and required packages |
+
+### Job 3: Security Scan
+
+**Purpose:** Identify vulnerabilities in dependencies.
+
+**Steps:**
+1. Checkout repository
+2. Install safety package
+3. Scan backend dependencies:
+   ```bash
+   safety check -r requirements.txt --output text
+   ```
+4. Scan frontend dependencies:
+   ```bash
+   safety check -r streamlit_app/requirements.txt --output text
+   ```
+
+### Job 4: Build and Deploy
 
 **Purpose:** Build Docker image, push to ACR, and deploy to Azure Container Apps.
 
-**Dependencies:** Requires `test` job to pass.
+**Dependencies:** Requires both `test-backend` and `test-frontend` jobs to pass.
 
 **Conditions:** Only runs on push to main branch.
 
@@ -628,25 +679,51 @@ Continuous Integration and Continuous Deployment are automated using GitHub Acti
    curl -f https://$APP_FQDN/health || exit 1
    ```
 
+### Frontend Auto-Deployment (Streamlit Cloud)
+
+The Streamlit frontend is deployed on Streamlit Cloud with automatic redeployment.
+
+**Configuration:** `streamlit_app/.streamlit/config.toml`
+
+```toml
+[server]
+runOnSave = true
+fileWatcherType = "poll"
+```
+
+**Behavior:**
+- Any push to `main` branch triggers automatic redeployment
+- Streamlit Cloud monitors the repository for changes
+- No manual reboot required after code updates
+- File watcher uses polling mode for container compatibility
+
 ### Workflow Diagram
 
 ```mermaid
 flowchart TD
     A[Push to main] --> B[Trigger CI/CD]
-    B --> C[Job: Test]
-    C --> D{Tests Pass?}
-    D -->|No| E[Fail Pipeline]
-    D -->|Yes| F[Job: Build-and-Deploy]
-    F --> G[Build Docker Image]
-    G --> H[Tag with SHA + latest]
-    H --> I[Push to ACR]
-    I --> J[Update Container App]
-    J --> K[Wait 20s]
-    K --> L[Verify / endpoint]
-    L --> M[Verify /health endpoint]
-    M --> N{Healthy?}
-    N -->|Yes| O[Deployment Success]
-    N -->|No| E
+    B --> C[Job: test-backend]
+    B --> D[Job: test-frontend]
+    B --> E[Job: security-scan]
+    C --> F{Backend Tests Pass?}
+    D --> G{Frontend Tests Pass?}
+    F -->|No| H[Fail Pipeline]
+    G -->|No| H
+    F -->|Yes| I[Job: build-and-deploy]
+    G -->|Yes| I
+    I --> J[Build Docker Image]
+    J --> K[Tag with SHA + latest]
+    K --> L[Push to ACR]
+    L --> M[Update Container App]
+    M --> N[Wait 20s]
+    N --> O[Verify / endpoint]
+    O --> P[Verify /health endpoint]
+    P --> Q{Healthy?}
+    Q -->|Yes| R[Backend Deployment Success]
+    Q -->|No| H
+    A --> S[Streamlit Cloud Webhook]
+    S --> T[Auto-redeploy Frontend]
+    T --> U[Frontend Deployment Success]
 ```
 
 ### Secrets Required
