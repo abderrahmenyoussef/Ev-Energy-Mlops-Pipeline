@@ -13,6 +13,8 @@ headless = true
 port = 8501
 enableCORS = true
 enableXsrfProtection = true
+runOnSave = true
+fileWatcherType = "poll"
 
 [browser]
 gatherUsageStats = false
