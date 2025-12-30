@@ -239,7 +239,7 @@ def main():
     
     # Sidebar
     with st.sidebar:
-        st.markdown(f"## {APP_ICON} EV Energy Monitor")
+        st.markdown(f"## {APP_ICON} EV Energy Monitor Test re-deploy")
         
         if check_authentication():
             user = st.session_state.user
