@@ -172,13 +172,13 @@ def show_login():
     """Show login/signup page"""
     st.markdown(f'<h1 class="main-header">{APP_ICON} {APP_TITLE}</h1>', unsafe_allow_html=True)
     
-    st.markdown("### Real-Time Energy Monitoring for Electric Vehicles fgdsgfgfdgdsg")
+    st.markdown("### Real-Time Energy Monitoring for Electric Vehicles")
     st.markdown("---")
     
     tab1, tab2 = st.tabs(["🔐 Login", "📝 Sign Up"])
     
     with tab1:
-        st.markdown("### Sign In to Your Account erzrzrezrzerezrez")
+        st.markdown("### Sign In to Your Account")
         
         with st.form("login_form"):
             username = st.text_input("Username", placeholder="Enter your username")
@@ -198,7 +198,7 @@ def show_login():
                             st.error("❌ Invalid username or password")
     
     with tab2:
-        st.markdown("### Create a New Account erezrezrzerzer")
+        st.markdown("### Create a New Account")
         
         with st.form("signup_form"):
             new_username = st.text_input("Username", placeholder="Choose a username", key="signup_username")
@@ -228,7 +228,7 @@ def show_login():
     st.markdown("---")
     st.markdown("""
     <div style='text-align: center; color: #666;'>
-        <p>Powered by <strong>EV Energy MLOps Pipeline rezrzerezrzerz</strong></p>
+        <p>Powered by <strong>EV Energy MLOps Pipeline</strong></p>
         <p>🔒 Secure • 🚀 Fast • 📊 Accurate</p>
     </div>
     """, unsafe_allow_html=True)
@@ -239,7 +239,7 @@ def main():
     
     # Sidebar
     with st.sidebar:
-        st.markdown(f"## {APP_ICON} EV Energy Monitor Developed by SigmaTroll")
+        st.markdown(f"## {APP_ICON} EV Energy Monitor")
         
         if check_authentication():
             user = st.session_state.user
